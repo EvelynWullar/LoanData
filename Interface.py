@@ -87,16 +87,20 @@ if st.button("Predict"):
     # Convert the data dictionary to a 2D array for model prediction
     data_array = np.array([list(data.values())])
 
-    # Load the model from the GitHub repository
-    url = 'https://raw.githubusercontent.com/EvelynWullar/LoanData/main/model.pkl' 
+    # Load the model from Google Drive
+    url = 'https://drive.google.com/uc?export=download&id=1pnWNdNT8RSRxSz5XtzjeGOCIAOaCW-xj'
     response = requests.get(url)
-    model = pickle.loads(response.content)
 
-    # Make a prediction
-    prediction = model.predict(data_array)
+    # Check if the response was successful
+    if response.status_code == 200:
+        model = pickle.loads(response.content)
+        # Make a prediction
+        prediction = model.predict(data_array)
 
-    # Display the result
-    if prediction[0] == 1:
-        st.success("Loan Approved")
+        # Display the result
+        if prediction[0] == 1:
+            st.success("Loan Approved")
+        else:
+            st.error("Loan Denied")
     else:
-        st.error("Loan Denied")
+        st.error(f"Failed to load model. Status code: {response.status_code}")
