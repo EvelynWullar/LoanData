@@ -59,7 +59,7 @@ with col8:
     total_income = applicant_income + co_applicant_income
     income_to_loan_ratio = total_income / loan_amount if loan_amount > 0 else 0
     income_per_term = total_income / loan_term if loan_term > 0 else 0
-
+        
     st.write(f"Income-to-Loan Ratio: {income_to_loan_ratio:.2f}")
     st.write(f"Total Income: {total_income:.2f}")
     st.write(f"Income per Term: {income_per_term:.2f}")
@@ -116,7 +116,7 @@ if st.button("Predict"):
     data_array = np.array([list(data.values())])
 
     # Load the model from Google Drive
-    model_file_id = '1pnWNdNT8RSRxSz5XtzjeGOCIAOaCW-xj'
+    model_file_id = '1NrGLNNxeqIaQWfq0aFKC91f72W3d7-RO'
     model_content = download_file_from_google_drive(model_file_id)
 
     if model_content:
