@@ -41,7 +41,7 @@ with col4:
 col5, col6, col7, col8 = st.columns(4)
 
 with col5:
-    loan_term = st.number_input("Loan Term (Months)", min_value=0, step=1)
+    loan_term = st.number_input("Loan Term (Months)", min_value=12, step=12)
 
 with col6:
     credit_history = st.selectbox("Credit History", options=["Good", "Poor"], index=0)
