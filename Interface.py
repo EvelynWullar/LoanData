@@ -64,6 +64,34 @@ with col8:
     st.write(f"Total Income: {total_income:.2f}")
     st.write(f"Income per Term: {income_per_term:.2f}")
 
+# Function to download the model file from Google Drive
+def download_file_from_google_drive(file_id):
+    download_url = f"https://drive.google.com/uc?id={file_id}&export=download"
+    response = requests.get(download_url)
+    
+    # Handle potential Google Drive confirmation pages
+    if 'content-disposition' not in response.headers:
+        # Try to handle Google Drive confirmation redirects
+        confirm_token = None
+        for key, value in response.cookies.items():
+            if key.startswith('download_warning'):
+                confirm_token = value
+        if confirm_token:
+            download_url = f"https://drive.google.com/uc?id={file_id}&export=download&confirm={confirm_token}"
+            response = requests.get(download_url)
+    
+    # Check if the response is valid
+    if response.status_code == 200:
+        return response.content
+    else:
+        st.error(f"Failed to download file from Google Drive. Status code: {response.status_code}")
+        return None
+
+# Function to save the model locally
+def save_model_locally(content, filename):
+    with open(filename, 'wb') as f:
+        f.write(content)
+
 # Submit button to predict loan approval
 if st.button("Predict"):
     # You can now use these encoded values for machine learning prediction
@@ -88,19 +116,27 @@ if st.button("Predict"):
     data_array = np.array([list(data.values())])
 
     # Load the model from Google Drive
-    url = 'https://github.com/EvelynWullar/LoanData/blob/300190a99999995360c13fee964a1e8068130eda/model.pkl'
-    response = requests.get(url)
+    model_file_id = '1pnWNdNT8RSRxSz5XtzjeGOCIAOaCW-xj'
+    model_content = download_file_from_google_drive(model_file_id)
 
-    # Check if the response was successful
-    if response.status_code == 200:
-        model = pickle.loads(response.content)
-        # Make a prediction
-        prediction = model.predict(data_array)
+    if model_content:
+        # Save the model locally to Streamlit's local file system
+        save_model_locally(model_content, "loan_model.pkl")
 
-        # Display the result
-        if prediction[0] == 1:
-            st.success("Loan Approved")
-        else:
-            st.error("Loan Denied")
+        # Load the model from the locally saved file
+        try:
+            with open("loan_model.pkl", "rb") as f:
+                model = pickle.load(f)
+
+            # Make a prediction
+            prediction = model.predict(data_array)
+
+            # Display the result
+            if prediction[0] == 1:
+                st.success("Loan Approved")
+            else:
+                st.error("Loan Denied")
+        except Exception as e:
+            st.error(f"Error during model prediction: {e}")
     else:
-        st.error(f"Failed to load model. Status code: {response.status_code}")
+        st.error("Could not download or load the model.")
