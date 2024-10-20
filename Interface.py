@@ -1,4 +1,7 @@
 import streamlit as st
+import requests
+import pickle
+import numpy as np
 
 # Title of the page
 st.title("Loan Approval Prediction")
@@ -81,8 +84,19 @@ if st.button("Predict"):
         "Income per Term": income_per_term
     }
     
-    # Show the encoded data
-    st.write("Encoded data for model prediction:", data)
+    # Convert the data dictionary to a 2D array for model prediction
+    data_array = np.array([list(data.values())])
 
-    # Placeholder for prediction logic
-    st.success("Prediction submitted for processing.")
+    # Load the model from the GitHub repository
+    url = 'https://github.com/your_username/your_repo/raw/main/model.pkl'  # Replace with your actual GitHub link
+    response = requests.get(url)
+    model = pickle.loads(response.content)
+
+    # Make a prediction
+    prediction = model.predict(data_array)
+
+    # Display the result
+    if prediction[0] == 1:
+        st.success("Loan Approved")
+    else:
+        st.error("Loan Denied")
