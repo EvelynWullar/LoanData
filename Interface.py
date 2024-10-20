@@ -88,7 +88,7 @@ if st.button("Predict"):
     data_array = np.array([list(data.values())])
 
     # Load the model from the GitHub repository
-    url = 'https://github.com/EvelynWullar/LoanData/blob/main/model.pkl'  # Replace with your actual GitHub link
+    url = 'https://raw.githubusercontent.com/EvelynWullar/LoanData/main/model.pkl' 
     response = requests.get(url)
     model = pickle.loads(response.content)
 
