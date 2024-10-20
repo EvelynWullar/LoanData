@@ -3,6 +3,33 @@ import requests
 import pickle
 import numpy as np
 
+# Function to download the model file from Google Drive
+def download_file_from_google_drive(file_id):
+    download_url = f"https://drive.google.com/uc?id={file_id}&export=download"
+    response = requests.get(download_url)
+    
+    # Check if the response is valid
+    if response.status_code == 200:
+        return response.content
+    else:
+        st.error(f"Failed to download file from Google Drive. Status code: {response.status_code}")
+        return None
+
+# Google Drive file ID for the model
+model_file_id = "1pnWNdNT8RSRxSz5XtzjeGOCIAOaCW-xj"  # Use your actual file ID
+
+# Load the model from Google Drive
+model_content = download_file_from_google_drive(model_file_id)
+
+# If the model is successfully downloaded
+if model_content:
+    try:
+        model = pickle.loads(model_content)
+    except pickle.UnpicklingError as e:
+        st.error(f"Failed to load model: {e}")
+else:
+    st.stop()
+
 # Title of the page
 st.title("Loan Approval Prediction")
 
@@ -66,7 +93,7 @@ with col8:
 
 # Submit button to predict loan approval
 if st.button("Predict"):
-    # You can now use these encoded values for machine learning prediction
+    # Use these encoded values for machine learning prediction
     data = {
         "Gender": gender_encoded,
         "Marital Status": marital_status_encoded,
@@ -87,13 +114,7 @@ if st.button("Predict"):
     # Convert the data dictionary to a 2D array for model prediction
     data_array = np.array([list(data.values())])
 
-    # Load the model from Google Drive
-    url = 'https://drive.google.com/uc?export=download&id=1pnWNdNT8RSRxSz5XtzjeGOCIAOaCW-xj'
-    response = requests.get(url)
-
-    # Check if the response was successful
-    if response.status_code == 200:
-        model = pickle.loads(response.content)
+    try:
         # Make a prediction
         prediction = model.predict(data_array)
 
@@ -102,5 +123,5 @@ if st.button("Predict"):
             st.success("Loan Approved")
         else:
             st.error("Loan Denied")
-    else:
-        st.error(f"Failed to load model. Status code: {response.status_code}")
+    except Exception as e:
+        st.error(f"Prediction failed: {e}")
